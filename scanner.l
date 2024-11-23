@@ -25,8 +25,8 @@ otros               [[:^alnum:]]{-}[[:space:]]{-}[-+*/();,>%]
 entero                               return ENTERO;
 leer                                 return LEER;
 escribir                             return ESCRIBIR;
-programa                             return PROGRAMA;
-fin-programa                         return FIN_PROGRAMA;
+inicio                             return INICIO;
+fin                         return FIN;
 {identificador}                      yylval = strdup(yytext); return ID;
 {constante_entera}                   yylval = strdup(yytext); return CONSTANTE;
 ":="                                 return ASIGNACION;

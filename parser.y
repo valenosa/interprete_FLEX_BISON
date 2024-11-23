@@ -17,7 +17,7 @@
 
 %start programa_micro
 
-%token ENTERO LEER ESCRIBIR PROGRAMA FIN_PROGRAMA ID CONSTANTE ASIGNACION
+%token ENTERO LEER ESCRIBIR INICIO FIN ID CONSTANTE ASIGNACION
 
 %left '+' '-'
 %left '*' '/' '%'
@@ -25,7 +25,7 @@
 
 %%
 
-programa_micro: PROGRAMA ID { printf("programa %s\n", yylval); } lista_sentencias FIN_PROGRAMA 
+programa_micro: INICIO { printf("inicio\n\n"); } lista_sentencias FIN { printf("\nfin\n"); }
                 { if (yynerrs || yylexerrs) YYABORT; else YYACCEPT; };
 
 lista_sentencias: sentencia lista_sentencias 
