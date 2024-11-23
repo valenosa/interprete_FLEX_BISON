@@ -22,7 +22,7 @@ cualquier_caracter  .
 otros               [[:^alnum:]]{-}[[:space:]]{-}[-+*/();,>%]
 
 %%
-entero                               return ENTERO;
+int                               return ENTERO;
 leer                                 return LEER;
 escribir                             return ESCRIBIR;
 inicio                             return INICIO;

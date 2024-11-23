@@ -33,7 +33,7 @@ lista_sentencias: sentencia lista_sentencias
                 ;
 
 sentencia:    ID ASIGNACION expresion ';' { printf("asignación\n"); }
-            | ENTERO ID ';'  { printf("entero %s\n", yylval); }
+            | ENTERO ID ';'  { printf("int %s\n", yylval); }
             | LEER '(' lista_identificadores ')' ';' { printf("leer\n"); }
             | ESCRIBIR '(' lista_expresiones ')' ';' { printf("escribir\n"); }
             | error ';'
