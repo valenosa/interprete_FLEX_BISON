@@ -1,4 +1,4 @@
-## Como compilar y ejecutar el tp
+## Como compilar y ejecutar
 
 # Usando makefile
 ```

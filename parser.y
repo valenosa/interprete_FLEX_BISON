@@ -15,9 +15,9 @@
 %define api.value.type {char *}
 %define parse.error verbose
 
-%start programa_mini
+%start programa_micro
 
-%token ENTERO LEER ESCRIBIR PROGRAMA FIN_PROGRAMA IDENTIFICADOR CONSTANTE ASIGNACION
+%token ENTERO LEER ESCRIBIR PROGRAMA FIN_PROGRAMA ID CONSTANTE ASIGNACION
 
 %left '+' '-'
 %left '*' '/' '%'
@@ -25,15 +25,15 @@
 
 %%
 
-programa_mini: PROGRAMA IDENTIFICADOR { printf("programa %s\n", yylval); } lista_sentencias FIN_PROGRAMA 
+programa_micro: PROGRAMA ID { printf("programa %s\n", yylval); } lista_sentencias FIN_PROGRAMA 
                 { if (yynerrs || yylexerrs) YYABORT; else YYACCEPT; };
 
 lista_sentencias: sentencia lista_sentencias 
                 | %empty
                 ;
 
-sentencia:    IDENTIFICADOR ASIGNACION expresion ';' { printf("asignación\n"); }
-            | ENTERO IDENTIFICADOR ';'  { printf("entero %s\n", yylval); }
+sentencia:    ID ASIGNACION expresion ';' { printf("asignación\n"); }
+            | ENTERO ID ';'  { printf("entero %s\n", yylval); }
             | LEER '(' lista_identificadores ')' ';' { printf("leer\n"); }
             | ESCRIBIR '(' lista_expresiones ')' ';' { printf("escribir\n"); }
             | error ';'
@@ -51,11 +51,11 @@ expresion:    expresion '+' expresion { printf("suma\n"); }
             | expresion '%' expresion { printf("módulo\n"); }
             | '(' expresion ')' { printf("paréntesis\n"); }
             | CONSTANTE
-            | IDENTIFICADOR
+            | ID
             ;
 
-lista_identificadores:    lista_identificadores ',' IDENTIFICADOR 
-                        | IDENTIFICADOR
+lista_identificadores:    lista_identificadores ',' ID 
+                        | ID
                         ;
 
 %%

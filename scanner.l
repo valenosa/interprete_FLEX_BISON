@@ -12,7 +12,7 @@
 %option yylineno
 
 digito_decimal      [0-9]
-letra               [a-zA-Z] 
+letra               [a-zA-Z_] 
 espacio             [[:space:]]
 identificador       {letra}({letra}|{digito_decimal})* 
 constante_entera    {digito_decimal}+
@@ -27,9 +27,9 @@ leer                                 return LEER;
 escribir                             return ESCRIBIR;
 programa                             return PROGRAMA;
 fin-programa                         return FIN_PROGRAMA;
-{identificador}                      yylval = strdup(yytext); return IDENTIFICADOR;
+{identificador}                      yylval = strdup(yytext); return ID;
 {constante_entera}                   yylval = strdup(yytext); return CONSTANTE;
-"<<"                                 return ASIGNACION;
+":="                                 return ASIGNACION;
 "+"                                  return '+';
 "-"                                  return '-';
 "*"                                  return '*';                                
