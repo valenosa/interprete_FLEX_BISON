@@ -15,6 +15,7 @@ digito_decimal      [0-9]
 letra               [a-zA-Z_] 
 espacio             [[:space:]]
 identificador       {letra}({letra}|{digito_decimal})* 
+string              \"[^\"]{0,255}\"
 constante_entera    {digito_decimal}+
 cualquier_caracter  . 
 
@@ -22,12 +23,13 @@ cualquier_caracter  .
 otros               [[:^alnum:]]{-}[[:space:]]{-}[-+*/();,>%]
 
 %%
-int                               return ENTERO;
+int                                  return ENTERO;
 leer                                 return LEER;
 escribir                             return ESCRIBIR;
-inicio                             return INICIO;
-fin                         return FIN;
+inicio                               return INICIO;
+fin                                  return FIN;
 {identificador}                      yylval = strdup(yytext); return ID;
+{string}                             yylval = strdup(yytext); return STRING;
 {constante_entera}                   yylval = strdup(yytext); return CONSTANTE;
 ":="                                 return ASIGNACION;
 "+"                                  return '+';

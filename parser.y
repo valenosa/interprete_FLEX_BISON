@@ -17,7 +17,7 @@
 
 %start programa_micro
 
-%token ENTERO LEER ESCRIBIR INICIO FIN ID CONSTANTE ASIGNACION
+%token ENTERO LEER ESCRIBIR INICIO FIN ID CONSTANTE ASIGNACION STRING
 
 %left '+' '-'
 %left '*' '/' '%'
