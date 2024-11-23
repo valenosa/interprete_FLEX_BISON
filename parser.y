@@ -20,7 +20,6 @@
 %token ENTERO LEER ESCRIBIR INICIO FIN ID CONSTANTE ASIGNACION STRING
 
 %left '+' '-'
-%left '*' '/' '%'
 %precedence NEG
 
 %%
@@ -46,9 +45,6 @@ lista_expresiones:    lista_expresiones expresion
 expresion:    expresion '+' expresion { printf("suma\n"); }
             | expresion '-' expresion { printf("resta\n"); }
             | '-' expresion %prec NEG { printf("inversión\n"); }
-            | expresion '*' expresion { printf("multiplicación\n"); }
-            | expresion '/' expresion { printf("división\n"); }
-            | expresion '%' expresion { printf("módulo\n"); }
             | '(' expresion ')' { printf("paréntesis\n"); }
             | CONSTANTE
             | ID
