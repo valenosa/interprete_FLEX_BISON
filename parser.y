@@ -31,8 +31,15 @@ lista_sentencias: sentencia lista_sentencias
                 | %empty
                 ;
 
-sentencia:    ID ASIGNACION expresion ';' { printf("asignación\n"); }
-            | ENTERO ID ';'  { printf("int %s\n", yylval); }
+sentencia:    ID ASIGNACION expresion ';' {} //! Chequear que exista el id, y que su tipo coincida con el de la expresion
+            | CONSTANTE ENTERO ID ASIGNACION expresion ';' {} //! Guarda que al tener expresiones como 2 - (514 + 4) se asigna solo el 2
+            | CONSTANTE STRING ID ASIGNACION LITERAL_CADENA ';' {} //!
+            | ENTERO ID ASIGNACION expresion ';' {} //!
+            | STRING ID ASIGNACION LITERAL_CADENA ';' {} //! 
+            | ENTERO ID ';'  {} //! Chequear que no se haya creado antes
+            | CONSTANTE ENTERO ID ';' {} //! Chequear que no se haya creado antes
+            | STRING ID ';' {} //! Chequear que no se haya creado antes
+            | CONSTANTE STRING ID ';' {} //! Chequear que no se haya creado antes
             | LEER '(' lista_identificadores ')' ';' { printf("leer\n"); }
             | ESCRIBIR '(' lista_expresiones ')' ';' { printf("escribir\n"); }
             | error ';'
@@ -42,11 +49,10 @@ lista_expresiones:    lista_expresiones expresion
                     | expresion
                     ;
 
-expresion:    expresion '+' expresion { printf("suma\n"); }
-            | expresion '-' expresion { printf("resta\n"); }
-            | '-' expresion %prec NEG { printf("negación\n"); }
-            | '(' expresion ')' { printf("paréntesis\n"); }
-            | CONST_INT
+expresion:    expresion '+' expresion {}
+            | expresion '-' expresion {}
+            | '(' expresion ')' {}
+            | CONST_INT 
             | ID
             ;
 
