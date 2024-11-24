@@ -1,7 +1,7 @@
 %code top {
     #include <stdio.h>
     #include "scanner.h"
-    #include "symbol_table.h"
+    #include "tabla_simbolos.c"
 }
 
 %code provides {
