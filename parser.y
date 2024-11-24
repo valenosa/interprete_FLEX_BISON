@@ -1,7 +1,7 @@
 %code top {
     #include <stdio.h>
     #include "scanner.h"
-    #include "tabla_simbolos.c"
+    #include "tabla_simbolos.h"
 }
 
 %code provides {
@@ -17,7 +17,7 @@
 
 %start programa_micro
 
-%token ENTERO LEER ESCRIBIR INICIO FIN ID CONSTANTE ASIGNACION STRING
+%token ENTERO LEER ESCRIBIR INICIO FIN ID CONST_INT ASIGNACION LITERAL_CADENA CONSTANTE
 
 %left '+' '-'
 %precedence NEG
@@ -46,7 +46,7 @@ expresion:    expresion '+' expresion { printf("suma\n"); }
             | expresion '-' expresion { printf("resta\n"); }
             | '-' expresion %prec NEG { printf("inversión\n"); }
             | '(' expresion ')' { printf("paréntesis\n"); }
-            | CONSTANTE
+            | CONST_INT
             | ID
             ;
 

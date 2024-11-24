@@ -1,6 +1,6 @@
 all: flex bison
 	gcc *.c -Wall -g -lfl && \
-	./a.out < enunciado/tests/test1.txt > enunciado/tests/test1_result.txt  && \
+	./a.out < enunciado/tests/testIntOK.txt > enunciado/tests/testIntOK_result.txt  && \
 	make clean && \
 	echo '\n'Compilacion y ejecucion realizada con éxito
 
