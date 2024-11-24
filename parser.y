@@ -17,7 +17,7 @@
 
 %start programa_micro
 
-%token ENTERO LEER ESCRIBIR INICIO FIN ID CONST_INT ASIGNACION LITERAL_CADENA CONSTANTE
+%token ENTERO LEER ESCRIBIR INICIO FIN ID CONST_INT ASIGNACION LITERAL_CADENA CONSTANTE STRING
 
 %left '+' '-'
 %precedence NEG
@@ -44,7 +44,7 @@ lista_expresiones:    lista_expresiones expresion
 
 expresion:    expresion '+' expresion { printf("suma\n"); }
             | expresion '-' expresion { printf("resta\n"); }
-            | '-' expresion %prec NEG { printf("inversión\n"); }
+            | '-' expresion %prec NEG { printf("negación\n"); }
             | '(' expresion ')' { printf("paréntesis\n"); }
             | CONST_INT
             | ID

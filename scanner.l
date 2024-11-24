@@ -31,7 +31,7 @@ escribir                             return ESCRIBIR;
 inicio                               return INICIO;
 fin                                  return FIN;
 {identificador}                      yylval = strdup(yytext); return ID;
-{literal_cadena}                             yylval = strdup(yytext); return LITERAL_CADENA;
+{literal_cadena}                     yylval = strdup(yytext); return LITERAL_CADENA;
 {constante_entera}                   yylval = strdup(yytext); return CONST_INT;
 ":="                                 return ASIGNACION;
 "+"                                  return '+';
