@@ -52,9 +52,9 @@ lista_sentencias: sentencia lista_sentencias
 
 sentencia:    constante_op tipo ID';' {agregarSimbolo($1, $2, $3);} //? Que pasa si supero el limite del array?
             | constante_op tipo ID ASIGNACION expresion_c ';' {if(agregarSimbolo($1, $2, $3)){asignarEntero($3, $5);};} //!
-            | constante_op tipo ID ASIGNACION expresion_s ';' {}
-            | ID ASIGNACION expresion_c ';' {asignarEntero($1, $3);} //! Chequear que exista el id, y que su tipo coincida con el de la expresion
-            | ID ASIGNACION expresion_s ';' {}
+            | constante_op tipo ID ASIGNACION expresion_s ';' {if(agregarSimbolo($1, $2, $3)){asignarString($3, $5);};}
+            | ID ASIGNACION expresion_c ';' {asignarEntero($1, $3);}
+            | ID ASIGNACION expresion_s ';' {asignarString($1, $3);}
             | LEER '(' lista_identificadores ')' ';' { printf("leer\n"); }
             | ESCRIBIR '(' lista_expresiones ')' ';' { printf("escribir\n"); }
             | error ';' //manejo de error

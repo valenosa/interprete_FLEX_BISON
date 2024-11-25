@@ -92,3 +92,34 @@ void asignarEntero(const char *id, int entero) {
     printf("Asignación int := %d al simbolo %s en posición %d\n", tablaSimbolos[i].contenido.entero, id, i);
     return;
 }
+
+//!En un futuro deberia intentar unificar asignarEntero() con asignarString()
+void asignarString(const char *id, const char *string) {
+    int i = encontrarSimbolo(id);
+
+    if (i == -1) {
+        errorSemantico();
+        printf("El simbolo %s no fue declarado.\n", id);
+        return;
+    }
+    if (tablaSimbolos[i].entero) { //Detecta si se está asignando un string a un entero
+        errorSemantico();
+        printf("Asignación int := str al simbolo %s (int)\n", id);
+        return;
+    }
+
+    if (tablaSimbolos[i].constante && !tablaSimbolos[i].nuevo) {
+        errorSemantico();
+        printf("Asignación a constante ya instanciada (%s).\n", id);
+        return;
+    }
+
+    //!Implementar que tire todos los errores
+
+    strcpy(tablaSimbolos[i].contenido.str, string);
+    // printf("String: %s ", string);
+    // printf("Contenido: %s ", tablaSimbolos[i].contenido.str);
+    tablaSimbolos[i].nuevo = 0; //mover a un if
+    printf("Asignación str := %s al simbolo %s en posición %d\n", tablaSimbolos[i].contenido.str, id, i);
+    return;
+}

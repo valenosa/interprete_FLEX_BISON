@@ -4,7 +4,7 @@
 int agregarSimbolo(const int permanencia, const int tipo, const char *id);
 int encontrarSimbolo(const char *id);
 void asignarEntero(const char *id, int entero);
-void asignarString(const char *id, int string);
+void asignarString(const char *id, const char *string);
 
 void imprimirTablaSimbolos();
 
