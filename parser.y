@@ -12,12 +12,24 @@
 %defines "parser.h"
 %output "parser.c"
 
-%define api.value.type {char *}
 %define parse.error verbose
 
 %start programa_micro
 
-%token ENTERO LEER ESCRIBIR INICIO FIN ID CONST_INT ASIGNACION LITERAL_CADENA CONSTANTE STRING
+%union {
+    int val;
+    char *str;
+}
+
+%token <val> CONST_INT
+%token <str> LITERAL_CADENA
+
+%type <val> expresion_c
+%type <str> expresion_s
+
+%type <str> programa_micro lista_sentencias sentencia constante_op tipo
+
+%token <str> ENTERO LEER ESCRIBIR INICIO FIN ID ASIGNACION CONSTANTE STRING
 
 %left '+' '-'
 %precedence NEG
@@ -31,29 +43,42 @@ lista_sentencias: sentencia lista_sentencias
                 | %empty
                 ;
 
-sentencia:    ID ASIGNACION expresion ';' {} //! Chequear que exista el id, y que su tipo coincida con el de la expresion
-            | CONSTANTE ENTERO ID ASIGNACION expresion ';' {} //! Guarda que al tener expresiones como 2 - (514 + 4) se asigna solo el 2
-            | CONSTANTE STRING ID ASIGNACION LITERAL_CADENA ';' {} //!
-            | ENTERO ID ASIGNACION expresion ';' {} //!
-            | STRING ID ASIGNACION LITERAL_CADENA ';' {} //! 
-            | ENTERO ID ';'  {} //! Chequear que no se haya creado antes
-            | CONSTANTE ENTERO ID ';' {} //! Chequear que no se haya creado antes
-            | STRING ID ';' {} //! Chequear que no se haya creado antes
-            | CONSTANTE STRING ID ';' {} //! Chequear que no se haya creado antes
+sentencia:    ID ASIGNACION expresion_c ';' {printf("%s = %d\n", $1, $3);} //! Chequear que exista el id, y que su tipo coincida con el de la expresion
+            | ID ASIGNACION expresion_s ';' {printf("%s = %s\n", $1, $3);}
+            | constante_op tipo ID';' {printf("%s %s %s\n", $1, $2, $3);} //!
+            | constante_op tipo ID ASIGNACION expresion_c ';' {printf("%s %s %s = %d\n", $1, $2, $3, $5);} //!
+            | constante_op tipo ID ASIGNACION expresion_s ';' {printf("%s %s %s = %s\n", $1, $2, $3, $5);}
             | LEER '(' lista_identificadores ')' ';' { printf("leer\n"); }
             | ESCRIBIR '(' lista_expresiones ')' ';' { printf("escribir\n"); }
             | error ';'
             ;
 
+constante_op:    CONSTANTE {$$ = "const";}
+             | %empty {$$ = "";} //! necesito que no imprima un espacio
+             ;
+
+tipo:     ENTERO {$$ = "int";}
+        | STRING {$$ = "string";}
+        ;
+
 lista_expresiones:    lista_expresiones expresion 
                     | expresion
-                    ;
+                    ;   
 
-expresion:    expresion '+' expresion {}
-            | expresion '-' expresion {}
-            | '(' expresion ')' {}
-            | CONST_INT 
-            | ID
+expresion:      expresion_c
+              | expresion_s
+              ;
+
+expresion_c:    expresion_c '+' expresion_c { $$ = $1 + $3; } //! hay que verifica los tipos
+            | expresion_c '-' expresion_c { $$ = $1 - $3; }
+            | '-' expresion_c %prec NEG { $$ = -$2; }
+            | '(' expresion_c ')' { $$ = $2; }
+            | CONST_INT { $$ = $1; }
+            | ID { /* Manejo de identificadores */ } //! hay que verificar que el tipo coincida
+            ;
+
+expresion_s:   LITERAL_CADENA { $$ = $1; }
+            | ID { /* Manejo de identificadores */ } //! hay que verificar que el tipo coincida
             ;
 
 lista_identificadores:    lista_identificadores ',' ID 
