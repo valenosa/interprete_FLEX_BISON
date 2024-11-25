@@ -2,6 +2,13 @@
     #include <stdio.h>
     #include "scanner.h"
     #include "tabla_simbolos.h"
+
+    // Valores utilizados para identificar tipos y constantes en tabla_simbolos
+    #define CONST 1 
+    #define VAR 0
+    #define CONST 1
+    #define INT 1
+    #define STR 0
 }
 
 %code provides {
@@ -24,10 +31,10 @@
 %token <val> CONST_INT
 %token <str> LITERAL_CADENA
 
-%type <val> expresion_c
+%type <val> expresion_c constante_op tipo
 %type <str> expresion_s
 
-%type <str> programa_micro lista_sentencias sentencia constante_op tipo
+%type <str> programa_micro lista_sentencias sentencia error
 
 %token <str> ENTERO LEER ESCRIBIR INICIO FIN ID ASIGNACION CONSTANTE STRING
 
@@ -43,22 +50,22 @@ lista_sentencias: sentencia lista_sentencias
                 | %empty
                 ;
 
-sentencia:    ID ASIGNACION expresion_c ';' {printf("%s = %d\n", $1, $3);} //! Chequear que exista el id, y que su tipo coincida con el de la expresion
-            | ID ASIGNACION expresion_s ';' {printf("%s = %s\n", $1, $3);}
-            | constante_op tipo ID';' {printf("%s %s %s\n", $1, $2, $3);} //!
-            | constante_op tipo ID ASIGNACION expresion_c ';' {printf("%s %s %s = %d\n", $1, $2, $3, $5);} //!
-            | constante_op tipo ID ASIGNACION expresion_s ';' {printf("%s %s %s = %s\n", $1, $2, $3, $5);}
+             constante_op tipo ID';' {if(!agregarSimbolo($1, $2, $3)){errorSemantico("Redeclaración del simbolo", $3);};} //!
+sentencia:  | ID ASIGNACION expresion_c ';' {} //! Chequear que exista el id, y que su tipo coincida con el de la expresion
+            | ID ASIGNACION expresion_s ';' {}
+            | constante_op tipo ID ASIGNACION expresion_c ';' {} //!
+            | constante_op tipo ID ASIGNACION expresion_s ';' {}
             | LEER '(' lista_identificadores ')' ';' { printf("leer\n"); }
             | ESCRIBIR '(' lista_expresiones ')' ';' { printf("escribir\n"); }
-            | error ';'
+            | error ';' //manejo de error
             ;
 
-constante_op:    CONSTANTE {$$ = "const";} //?
-             | %empty {$$ = "";} //?
+constante_op:    CONSTANTE {$$ = CONST;} //?
+             | %empty {$$ = VAR;} //?
              ;
 
-tipo:     ENTERO {$$ = "int";} //?
-        | STRING {$$ = "string";} //?
+tipo:     ENTERO {$$ = INT;} //?
+        | STRING {$$ = STR;} //?
         ;
 
 lista_expresiones:    lista_expresiones expresion 
