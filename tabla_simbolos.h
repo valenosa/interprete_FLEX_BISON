@@ -3,7 +3,12 @@
 
 int agregarSimbolo(const int permanencia, const int tipo, const char *id);
 int encontrarSimbolo(const char *id);
+void asignarEntero(const char *id, int entero);
+void asignarString(const char *id, int string);
 
-void errorSemantico(const char *err, const char *id);
+void imprimirTablaSimbolos();
+
+void errorSemantico();
+
 
 #endif // TABLA_SIMBOLOS_H

@@ -50,11 +50,11 @@ lista_sentencias: sentencia lista_sentencias
                 | %empty
                 ;
 
-             constante_op tipo ID';' {if(!agregarSimbolo($1, $2, $3)){errorSemantico("Redeclaración del simbolo", $3);};} //!
-sentencia:  | ID ASIGNACION expresion_c ';' {} //! Chequear que exista el id, y que su tipo coincida con el de la expresion
-            | ID ASIGNACION expresion_s ';' {}
-            | constante_op tipo ID ASIGNACION expresion_c ';' {} //!
+sentencia:    constante_op tipo ID';' {agregarSimbolo($1, $2, $3);} //? Que pasa si supero el limite del array?
+            | constante_op tipo ID ASIGNACION expresion_c ';' {if(agregarSimbolo($1, $2, $3)){asignarEntero($3, $5);};} //!
             | constante_op tipo ID ASIGNACION expresion_s ';' {}
+            | ID ASIGNACION expresion_c ';' {asignarEntero($1, $3);} //! Chequear que exista el id, y que su tipo coincida con el de la expresion
+            | ID ASIGNACION expresion_s ';' {}
             | LEER '(' lista_identificadores ')' ';' { printf("leer\n"); }
             | ESCRIBIR '(' lista_expresiones ')' ';' { printf("escribir\n"); }
             | error ';' //manejo de error
