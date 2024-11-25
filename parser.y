@@ -53,12 +53,12 @@ sentencia:    ID ASIGNACION expresion_c ';' {printf("%s = %d\n", $1, $3);} //! C
             | error ';'
             ;
 
-constante_op:    CONSTANTE {$$ = "const";}
-             | %empty {$$ = "";} //! necesito que no imprima un espacio
+constante_op:    CONSTANTE {$$ = "const";} //?
+             | %empty {$$ = "";} //?
              ;
 
-tipo:     ENTERO {$$ = "int";}
-        | STRING {$$ = "string";}
+tipo:     ENTERO {$$ = "int";} //?
+        | STRING {$$ = "string";} //?
         ;
 
 lista_expresiones:    lista_expresiones expresion 
