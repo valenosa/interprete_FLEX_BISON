@@ -10,5 +10,10 @@ void imprimirTablaSimbolos();
 
 void errorSemantico();
 
+int contenidoEntero(int *temp, const char *id);
+int contenidoString(char *str, const char *id);
+
+int esEntero(const char *id);
+int obtenerTipo(const char *id);
 
 #endif // TABLA_SIMBOLOS_H

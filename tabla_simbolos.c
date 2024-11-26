@@ -55,7 +55,7 @@ int encontrarSimbolo(const char *id) { //Devuelve la posición o -1 en caso de n
 }
 
 void errorSemantico() {
-    printf("#%d Error semántico: ", yylineno);
+    printf("Línea #%d: Error semántico, ", yylineno);
 }
 
 void imprimirTablaSimbolos() {
@@ -88,7 +88,7 @@ void asignarEntero(const char *id, int entero) {
     //!Implementar que tire todos los errores
 
     tablaSimbolos[i].contenido.entero = entero;
-    tablaSimbolos[i].nuevo = 0;
+    tablaSimbolos[i].nuevo = 0; //!meter en condicional
     printf("Asignación int := %d al simbolo %s en posición %d\n", tablaSimbolos[i].contenido.entero, id, i);
     return;
 }
@@ -122,4 +122,72 @@ void asignarString(const char *id, const char *string) {
     tablaSimbolos[i].nuevo = 0; //mover a un if
     printf("Asignación str := %s al simbolo %s en posición %d\n", tablaSimbolos[i].contenido.str, id, i);
     return;
+}
+
+
+int contenidoEntero(int *temp, const char *id) {
+    int i = encontrarSimbolo(id);
+
+    if (i == -1) {
+        errorSemantico();
+        printf("Operación con simbolo no declarado (%s).\n", id);
+        printf("Exit\n");
+        return 0; //! Esto no debería devolver nada ya que dado el caso de que no exista el simbolo, no puedo hacer la operación. reemplazar con exit
+    }
+    if (!tablaSimbolos[i].entero){
+        errorSemantico();
+        printf("El simbolo %s no es un entero.\n", id);
+        printf("Exit\n");
+        return 0;
+    }
+
+    *temp = tablaSimbolos[i].contenido.entero;
+    return 1;
+}
+
+int contenidoString(char * str, const char *id) {
+    int i = encontrarSimbolo(id);
+
+    if (i == -1) {
+        errorSemantico();
+        printf("Operación con simbolo no declarado (%s).\n", id);
+        printf("Exit\n");
+        return 0; //! Esto no debería devolver nada ya que dado el caso de que no exista el simbolo, no puedo hacer la operación. reemplazar con exit
+    }
+
+    if (tablaSimbolos[i].entero) { // Detecta si se está intentando obtener un string de un entero
+        errorSemantico();
+        printf("El simbolo %s no es un string.\n", id);
+        printf("Exit\n");
+        return 0; // Indicar error
+    }
+
+    strcpy(str, tablaSimbolos[i].contenido.str);
+    return 1; // Indicar éxito
+}
+
+int esEntero(const char *id){
+    int i = encontrarSimbolo(id);
+
+    if (i == -1) {
+        errorSemantico();
+        printf("Operación con simbolo no declarado (%s).\n", id);
+        printf("Exit\n");
+        return 0; //! Esto no debería devolver nada ya que dado el caso de que no exista el simbolo, no puedo hacer la operación. reemplazar con exit
+    }
+
+    return tablaSimbolos[i].entero;
+}
+
+int obtenerTipo(const char *id){
+    int i = encontrarSimbolo(id);
+
+    if (i == -1) {
+        errorSemantico();
+        printf("Operación con simbolo no declarado (%s).\n", id);
+        printf("Exit\n");
+        return 0; //! Esto no debería devolver nada ya que dado el caso de que no exista el simbolo, no puedo hacer la operación. reemplazar con exit
+    }
+
+    return tablaSimbolos[i].entero;
 }
