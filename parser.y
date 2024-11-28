@@ -13,13 +13,12 @@
 
 %code requires {
 
-    #define MAX_IDENTIFICADORES 100
+    #include "tabla_simbolos.h"
 
     typedef struct {
-        char *ids[MAX_IDENTIFICADORES];
+        char *ids[MAX_RW];
         int count;
     } ListaIdentificadores;
-
 }
 
 %code provides {
@@ -39,6 +38,8 @@
     int val;
     char *str;
     ListaIdentificadores ids;
+    ListaElementos lista_elem;
+    Elemento elem;
 }
 
 %token <val> CONST_INT
@@ -50,6 +51,10 @@
 %type <str> programa_micro lista_sentencias sentencia error
 
 %type <ids> lista_identificadores
+
+%type <lista_elem> lista_elementos
+
+%type <elem> elemento
 
 %token <str> ENTERO LEER ESCRIBIR INICIO FIN ID ASIGNACION CONSTANTE STRING
 
@@ -131,7 +136,11 @@ sentencia:    constante_op tipo ID';' {agregarSimbolo($1, $2, $3);} //? Que pasa
                                 }
                             }
                         }
-            | ESCRIBIR '(' lista_expresiones ')' ';' {}
+            | ESCRIBIR '(' lista_elementos ')' ';' {
+                            for (int i = 0; i < $3.count; i++) {
+                                escribirElemento($3.elementos[i]);
+                            }
+                        }
             | error ';' //manejo de error
             ;
 
@@ -143,27 +152,8 @@ tipo:     ENTERO {$$ = INT;} //?
         | STRING {$$ = STR;} //?
         ;
 
-lista_expresiones:    lista_expresiones expresion 
-                    | expresion
-                    ;   
-
-expresion:      expresion_c
-              | expresion_s
-              ;
-
-expresion_c:    expresion_c '+' expresion_c { $$ = $1 + $3; } //! hay que verifica los tipos
-            | expresion_c '-' expresion_c { $$ = $1 - $3; }
-            | '-' expresion_c %prec NEG { $$ = -$2; }
-            | '(' expresion_c ')' { $$ = $2; }
-            | CONST_INT { $$ = $1; }
-            |ID {if(tipo($1) != INT){errorSemantico(); printf("operación aritmética con string\n"); $$ = 0;} else{int temp; contenidoEntero(&temp, $1); $$ = temp;}}
-            ;
-
-expresion_s:   LITERAL_CADENA { $$ = $1; }
-            ;
-
 lista_identificadores:    lista_identificadores ',' ID {
-                                if ($1.count < MAX_IDENTIFICADORES) {
+                                if ($1.count < MAX_RW) {
                                     $1.ids[$1.count] = strdup($3);
                                     $1.count++;
                                     $$ = $1;
@@ -178,6 +168,60 @@ lista_identificadores:    lista_identificadores ',' ID {
                             $$ = lista;
                         }
                         ;
+
+lista_elementos: lista_elementos ',' elemento {
+                    if ($1.count < MAX_RW) {
+                        $1.elementos[$1.count] = $3;
+                        $1.count++;
+                        $$ = $1;
+                    } else {
+                        yyerror("Demasiados elementos en la lista");
+                    }
+                }
+              | elemento {
+                    ListaElementos lista;
+                    lista.elementos[0] = $1;
+                    lista.count = 1;
+                    $$ = lista;
+                }
+              ;
+
+elemento: ID {
+            Elemento elem;
+            elem.tipo = ID_TYPE;
+            elem.valor.id = strdup($1);
+            $$ = elem;
+        }
+        | expresion_c {
+            Elemento elem;
+            elem.tipo = CONST_TYPE;
+            elem.valor.val = $1;
+            $$ = elem;
+        }
+        | expresion_s {
+            Elemento elem;
+            elem.tipo = STRING_TYPE;
+            elem.valor.str = strdup($1);
+            $$ = elem;
+        }
+        ;
+
+expresion:      expresion_c
+              | expresion_s
+              ;
+
+expresion_c:    expresion_c '+' expresion_c { $$ = $1 + $3; }
+            | expresion_c '-' expresion_c { $$ = $1 - $3; }
+            | '-' expresion_c %prec NEG { $$ = -$2; }
+            | '(' expresion_c ')' { $$ = $2; }
+            | CONST_INT { $$ = $1; }
+            |ID {if(tipo($1) != INT){errorSemantico(); printf("operación aritmética con string\n"); $$ = 0;} else{int temp; contenidoEntero(&temp, $1); $$ = temp;}}
+            ;
+
+expresion_s:   LITERAL_CADENA { $$ = $1; }
+            ;
+
+
 
 %%
 

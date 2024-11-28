@@ -4,12 +4,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+//* Estructuras para el manejo de Tabla de Símbolos
+
 #define SIMBOLOS_MAX 50
 
 typedef union { // Contiene la información de la variable
     char str[255];//254 elementos + 1 para el caracter nulo
     int entero;
-} Contenido;
+} Contenido; //! Meter la declaración en struct contenido
 
 typedef struct {
     char id[33];//32 elementos + 1 para el caracter nulo
@@ -23,7 +25,10 @@ typedef struct {
 Simbolo tablaSimbolos[SIMBOLOS_MAX];
 int cantSimbolos = 0;
 
+//* Errores
 int yysemerrs = 0; // errores semánticos
+
+//*Lógica de las funciones
 
 int agregarSimbolo(const int permanencia, const int tipo, const char *id) {
     
@@ -98,7 +103,7 @@ void asignarEntero(const char *id, int entero) {
 }
 
 //!En un futuro deberia intentar unificar asignarEntero() con asignarString()
-void asignarString(const char *id, const char *string) {
+void asignarString(const char *id, char *string) {
     int i = encontrarSimbolo(id);
 
     if (i == -1) {
@@ -119,15 +124,26 @@ void asignarString(const char *id, const char *string) {
     }
 
     //!Implementar que tire todos los errores
-
+    sacarComillas(string);
     strcpy(tablaSimbolos[i].contenido.str, string);
     // printf("String: %s ", string);
     // printf("Contenido: %s ", tablaSimbolos[i].contenido.str);
-    tablaSimbolos[i].nuevo = 0; //mover a un if
-    printf("Asignación str := %s al simbolo %s en posición %d\n", tablaSimbolos[i].contenido.str, id, i);
+    tablaSimbolos[i].nuevo = 0; //! mover a un if
+    printf("Asignación str := \"%s\" al simbolo %s en posición %d\n", tablaSimbolos[i].contenido.str, id, i);
     return;
 }
 
+void sacarComillas(char *cadena) { //Intenté hacer que la REGEX de la string no identifique la comillas y se detecte en la GIC una cadena entre comillas, pero detectaba cualquier cosa como string
+    size_t len = strlen(cadena);
+
+    // Verificar que la cadena tenga al menos dos caracteres y que comience y termine con comillas
+    if (len >= 2 && cadena[0] == '"' && cadena[len - 1] == '"') {
+        // Mover todos los caracteres una posición hacia la izquierda
+        memmove(cadena, cadena + 1, len - 2);
+        // Añadir el carácter nulo al final de la cadena
+        cadena[len - 2] = '\0';
+    }
+}
 
 int contenidoEntero(int *temp, const char *id) {
     int i = encontrarSimbolo(id);
@@ -181,4 +197,27 @@ int tipo(const char *id){
     }
 
     return tablaSimbolos[i].entero;
+}
+
+void escribirElemento(Elemento elem) {
+    switch (elem.tipo) {
+        case ID_TYPE:
+            if(tipo(elem.valor.id)){
+                int temp;
+                contenidoEntero(&temp, elem.valor.id);
+                printf("%d", temp);
+            } else {
+                char str[255];
+                contenidoString(str, elem.valor.id);
+                printf("%s", str);
+            }
+            break;
+        case CONST_TYPE:
+            printf("%d", elem.valor.val);
+            break;
+        case STRING_TYPE:
+            sacarComillas(elem.valor.str);
+            printf("%s", elem.valor.str);
+            break;
+    }
 }
