@@ -1,6 +1,8 @@
 #ifndef TABLA_SIMBOLOS_H
 #define TABLA_SIMBOLOS_H
 
+extern int use_yyabort; // Variable global para controlar YYABORT
+
 //Estructuras para el manejo de datos
 #define MAX_RW 100
 
@@ -26,8 +28,8 @@ extern int yysemerrs;
 // Funciones
 int agregarSimbolo(const int permanencia, const int tipo, const char *id);
 int encontrarSimbolo(const char *id);
-void asignarEntero(const char *id, int entero);
-void asignarString(const char *id, char *string);
+int asignarEntero(const char *id, int entero);
+int asignarString(const char *id, char *string);
 
 void imprimirTablaSimbolos();
 

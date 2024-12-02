@@ -19,12 +19,18 @@
         char *ids[MAX_RW];
         int count;
     } ListaIdentificadores;
+
+    
 }
 
 %code provides {
     void yyerror(const char *);
     extern int yylexerrs;
+
+    #define ABORT_PARSER() do {if(use_yyabort){printf("Exit\n"); YYABORT;} } while (0) //Se usa el while (0) para evitar errores por ejemplo al usar el macro en un if sin {}, lo que haria que solo se ejecute la primer sentencia y daría error sintáctico. el while(0) hace que se comporte como una única instruccion
 }
+
+
     
 
 %defines "parser.h"
@@ -70,69 +76,77 @@ lista_sentencias: sentencia lista_sentencias
                 | %empty
                 ;
 
-sentencia:    constante_op tipo ID';' {agregarSimbolo($1, $2, $3);} //? Que pasa si supero el limite del array?
+sentencia:    constante_op tipo ID';' {if(!agregarSimbolo($1, $2, $3)){ABORT_PARSER();}} //? Que pasa si supero el limite del array?
             | ID ASIGNACION ID ';' { 
                 if (tipo($1) != tipo($3)){ 
                     errorSemantico();
                     printf(", asignación entre tipos incompatibles\n");
+                    ABORT_PARSER();
                 } 
                 else { 
                     if (tipo($1) == INT) {
                         int temp;
                         contenidoEntero(&temp, $3);
-                        asignarEntero($1, temp);
+                        if(!asignarEntero($1, temp)){ABORT_PARSER();}
+                            
                     } 
                     else { 
                         char buffer[255]; 
                         contenidoString(buffer, $3);      
-                        asignarString($1, buffer); 
+                        if(!asignarString($1, buffer)){ABORT_PARSER();}
                     } 
                 } 
             }
-            | ID ASIGNACION expresion_c ';' {asignarEntero($1, $3);}
-            | ID ASIGNACION expresion_s ';' {asignarString($1, $3);}
+            | ID ASIGNACION expresion_c ';' {if(!asignarEntero($1, $3)){ABORT_PARSER();}}
+            | ID ASIGNACION expresion_s ';' {if(!asignarString($1, $3)){ABORT_PARSER();}}
             | constante_op tipo ID ASIGNACION ID ';' { 
                 if ($2 != tipo($5)){ 
                     errorSemantico();
                     printf(", asignación entre tipos incompatibles\n");
+                    ABORT_PARSER();
                 } 
                 else { 
                     if(agregarSimbolo($1, $2, $3)){
 
                         if ($2 == INT) {
                             int temp;
-                            contenidoEntero(&temp, $5);
-                            asignarEntero($3, temp);
+                            if(contenidoEntero(&temp, $5)){ABORT_PARSER();}
+                            if(asignarEntero($3, temp)){ABORT_PARSER();}
                         } 
                         else { 
                             char buffer[255]; 
-                            contenidoString(buffer, $5);      
-                            asignarString($3, buffer); 
+                            if(contenidoString(buffer, $5)){ABORT_PARSER();}      
+                            if(asignarString($3, buffer)){ABORT_PARSER();}
                         } 
                     }
+                    else{ABORT_PARSER();}
                 } 
 
             }
-            | constante_op tipo ID ASIGNACION expresion_c ';' {if(agregarSimbolo($1, $2, $3)){asignarEntero($3, $5);};} //!
-            | constante_op tipo ID ASIGNACION expresion_s ';' {if(agregarSimbolo($1, $2, $3)){asignarString($3, $5);};}
+            | constante_op tipo ID ASIGNACION expresion_c ';' {if(agregarSimbolo($1, $2, $3)){if(asignarEntero($3, $5)){ABORT_PARSER();}} else{ABORT_PARSER();}} //!
+            | constante_op tipo ID ASIGNACION expresion_s ';' {if(agregarSimbolo($1, $2, $3)){if(asignarString($3, $5)){ABORT_PARSER();}} else{ABORT_PARSER();}}
             | LEER '(' lista_identificadores ')' ';' {
                             for (int i = 0; i < $3.count; i++) { //!Esto es un asco, hay que delegarlo a funciones
-                                char type[7];
-                                if (tipo($3.ids[i]) == INT) {
-                                    strcpy(type, "entero");
-                                } 
-                                if (tipo($3.ids[i]) == STR) {
-                                    strcpy(type, "string");
+                                int type = tipo($3.ids[i]);
+                                char typeStr[7];
+                                if(type == -1){
+                                    ABORT_PARSER();
                                 }
-                                printf("Ingrese valor para %s (%s): ", $3.ids[i], type);
-                                if (tipo($3.ids[i]) == INT) {
+                                if (type == INT) {
+                                    strcpy(typeStr, "entero");
+                                } 
+                                if (type == STR) {
+                                    strcpy(typeStr, "string");
+                                }
+                                printf("Ingrese valor para %s (%s): ", $3.ids[i], typeStr);
+                                if (type == INT) {
                                     int temp;
                                     scanf("%d", &temp); //!No me deja hacer el scanf
-                                    asignarEntero($3.ids[i], 123);
+                                    if(asignarEntero($3.ids[i], 123)){ABORT_PARSER();}
                                 } else {
                                     char buffer[255];
                                     scanf("%s", buffer); //!No me deja hacer el scanf
-                                    asignarString($3.ids[i], "test");
+                                    if(asignarString($3.ids[i], "test")){ABORT_PARSER();}
                                 }
                             }
                         }
@@ -159,6 +173,7 @@ lista_identificadores:    lista_identificadores ',' ID {
                                     $$ = $1;
                                 } else {
                                     yyerror("Demasiados identificadores en la lista");
+                                    ABORT_PARSER();
                                 }
                             }   
                         | ID {
@@ -176,6 +191,7 @@ lista_elementos: lista_elementos ',' elemento {
                         $$ = $1;
                     } else {
                         yyerror("Demasiados elementos en la lista");
+                        ABORT_PARSER();
                     }
                 }
               | elemento {
@@ -215,7 +231,7 @@ expresion_c:    expresion_c '+' expresion_c { $$ = $1 + $3; }
             | '-' expresion_c %prec NEG { $$ = -$2; }
             | '(' expresion_c ')' { $$ = $2; }
             | CONST_INT { $$ = $1; }
-            |ID {if(tipo($1) != INT){errorSemantico(); printf("operación aritmética con string\n"); $$ = 0;} else{int temp; contenidoEntero(&temp, $1); $$ = temp;}}
+            |ID {if(tipo($1) != INT){errorSemantico(); printf("operación aritmética con string\n"); $$ = 0; ABORT_PARSER();} else{int temp; if(contenidoEntero(&temp, $1)){ABORT_PARSER();}; $$ = temp;}}
             ;
 
 expresion_s:   LITERAL_CADENA { $$ = $1; }
