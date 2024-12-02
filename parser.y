@@ -141,12 +141,12 @@ sentencia:    constante_op tipo ID';' {if(!agregarSimbolo($1, $2, $3)){ABORT_PAR
                                 printf("Ingrese valor para %s (%s): ", $3.ids[i], typeStr);
                                 if (type == INT) {
                                     int temp;
-                                    scanf("%d", &temp); //!No me deja hacer el scanf
-                                    if(asignarEntero($3.ids[i], 123)){ABORT_PARSER();}
+                                    scanf(" %d", &temp); //!No me deja hacer el scanf
+                                    if(asignarEntero($3.ids[i], temp)){ABORT_PARSER();}
                                 } else {
                                     char buffer[255];
-                                    scanf("%s", buffer); //!No me deja hacer el scanf
-                                    if(asignarString($3.ids[i], "test")){ABORT_PARSER();}
+                                    scanf(" %s", buffer); //!No me deja hacer el scanf
+                                    if(asignarString($3.ids[i], buffer)){ABORT_PARSER();}
                                 }
                             }
                         }

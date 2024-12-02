@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-int use_yyabort = 0; // Controla si YYABORT debe ser llamado
+int use_yyabort = 1; // Controla si YYABORT debe ser llamado
 
 //* Estructuras para el manejo de Tabla de Símbolos
 
